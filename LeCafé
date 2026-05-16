@@ -1,0 +1,720 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from './utils';
+import { base44 } from '@/api/base44Client';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  LayoutDashboard,
+  Coffee,
+  ShoppingCart,
+  Package,
+  Truck,
+  Users,
+  DollarSign,
+  Settings,
+  Menu,
+  X,
+  ChefHat,
+  LogOut,
+  Bell,
+  ChevronDown,
+  Search,
+  Home,
+  Sparkles,
+  Heart,
+  ShoppingBag,
+  TrendingUp,
+  FileText,
+  Bot
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const menuSections = [
+  {
+    title: 'Operações',
+    items: [
+      { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard', gradient: 'from-amber-500 to-amber-600' },
+      { name: 'PDV', icon: ShoppingCart, page: 'PDV', gradient: 'from-emerald-500 to-emerald-600' },
+      { name: 'Produção', icon: ChefHat, page: 'Producao', gradient: 'from-orange-500 to-orange-600' },
+      { name: 'Comandas', icon: FileText, page: 'Comandas', gradient: 'from-teal-500 to-teal-600' },
+    ]
+  },
+  {
+    title: 'Gestão',
+    items: [
+      { name: 'Cardápio', icon: Coffee, page: 'Cardapio', gradient: 'from-purple-500 to-purple-600' },
+      { name: 'Estoque', icon: Package, page: 'Estoque', gradient: 'from-blue-500 to-blue-600' },
+      { name: 'Delivery', icon: Truck, page: 'Delivery', gradient: 'from-cyan-500 to-cyan-600' },
+    ]
+  },
+  {
+    title: 'Business',
+    items: [
+      { name: 'Clientes', icon: Users, page: 'Clientes', gradient: 'from-pink-500 to-pink-600' },
+      { name: 'Fiado & Família', icon: Heart, page: 'Fiado', gradient: 'from-rose-500 to-rose-600' },
+      { name: 'Gastos', icon: ShoppingBag, page: 'Gastos', gradient: 'from-orange-500 to-orange-600' },
+      { name: 'Precificação', icon: TrendingUp, page: 'Precificacao', gradient: 'from-blue-500 to-blue-600' },
+      { name: 'Financeiro', icon: DollarSign, page: 'Financeiro', gradient: 'from-green-500 to-green-600' },
+      { name: 'Assistente IA', icon: Bot, page: 'Assistente', gradient: 'from-violet-500 to-violet-600' },
+      { name: 'Configurações', icon: Settings, page: 'Configuracoes', gradient: 'from-slate-500 to-slate-600' },
+    ]
+  }
+];
+
+export default function Layout({ children, currentPageName }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [user, setUser] = useState(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {
+        // Usuário não logado
+      }
+    };
+    loadUser();
+  }, []);
+
+  const handleLogout = () => {
+    base44.auth.logout();
+  };
+
+  // PDV em tela cheia
+  if (currentPageName === 'PDV') {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a]">
+        {children}
+      </div>
+    );
+  }
+
+  const allMenuItems = menuSections.flatMap(section => section.items);
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: 'Outfit', sans-serif;
+          background: #0B0B0F;
+          overflow-x: hidden;
+        }
+        
+        body::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(circle at 20% 30%, rgba(184, 134, 11, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(10, 108, 74, 0.03) 0%, transparent 70%);
+          pointer-events: none;
+          z-index: 0;
+        }
+        
+        .font-display {
+          font-family: 'Playfair Display', serif;
+        }
+        
+        .glass-card {
+          background: rgba(255, 255, 255, 0.02);
+          backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .luxury-sidebar {
+          background: linear-gradient(180deg, 
+            rgba(15, 15, 20, 0.98) 0%, 
+            rgba(10, 10, 15, 0.99) 50%,
+            rgba(8, 8, 12, 0.99) 100%
+          );
+          backdrop-filter: blur(60px) saturate(200%);
+          box-shadow: 
+            4px 0 24px rgba(0, 0, 0, 0.5),
+            inset -1px 0 0 rgba(184, 134, 11, 0.1);
+        }
+        
+        .nav-group-header {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #666;
+          margin-bottom: 12px;
+          padding: 0 24px;
+          position: relative;
+        }
+        
+        .nav-group-header::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          width: 12px;
+          height: 2px;
+          background: linear-gradient(90deg, #B8860B, transparent);
+        }
+        
+        .luxury-nav-item {
+          position: relative;
+          margin: 0 12px 6px;
+          border-radius: 16px;
+          overflow: hidden;
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .luxury-nav-item::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, 
+            rgba(184, 134, 11, 0.15) 0%, 
+            rgba(212, 175, 55, 0.08) 100%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .luxury-nav-item:hover::before {
+          opacity: 1;
+        }
+        
+        .luxury-nav-item.active::before {
+          opacity: 1;
+          background: linear-gradient(135deg, 
+            rgba(184, 134, 11, 0.2) 0%, 
+            rgba(212, 175, 55, 0.12) 100%
+          );
+        }
+        
+        .luxury-nav-item::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: linear-gradient(180deg, #B8860B, #D4AF37);
+          transform: scaleY(0);
+          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+          border-radius: 0 4px 4px 0;
+        }
+        
+        .luxury-nav-item.active::after {
+          transform: scaleY(1);
+        }
+        
+        .luxury-nav-item:hover {
+          transform: translateX(4px);
+        }
+        
+        .icon-container {
+          position: relative;
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .icon-container::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          border-radius: 16px;
+          padding: 2px;
+          background: linear-gradient(135deg, transparent, rgba(184, 134, 11, 0.3));
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .luxury-nav-item:hover .icon-container::before,
+        .luxury-nav-item.active .icon-container::before {
+          opacity: 1;
+        }
+        
+        .luxury-nav-item.active .icon-container {
+          transform: scale(1.1) rotate(-5deg);
+        }
+        
+        .luxury-topbar {
+          background: rgba(11, 11, 15, 0.8);
+          backdrop-filter: blur(40px) saturate(180%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .search-wrapper {
+          position: relative;
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .search-wrapper::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 16px;
+          padding: 2px;
+          background: linear-gradient(135deg, rgba(184, 134, 11, 0.3), rgba(212, 175, 55, 0.2));
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .search-wrapper:focus-within::before {
+          opacity: 1;
+        }
+        
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: rgba(184, 134, 11, 0.3);
+          border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(184, 134, 11, 0.5);
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes glow {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        
+        .floating {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .glow-pulse {
+          animation: glow 3s ease-in-out infinite;
+        }
+      `}</style>
+
+      {/* Sidebar Desktop */}
+      <motion.aside 
+        initial={false}
+        animate={{ width: sidebarExpanded ? 320 : 90 }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        className="hidden lg:flex fixed left-0 top-0 h-full luxury-sidebar flex-col z-50 overflow-hidden"
+      >
+        {/* Logo */}
+        <div className="p-8 pb-6">
+          <Link to={createPageUrl('Dashboard')} className="flex items-center gap-5 group">
+            <motion.div 
+              className="relative floating"
+              whileHover={{ scale: 1.1, rotate: 360 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#B8860B] via-[#D4AF37] to-[#B8860B] rounded-3xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity glow-pulse" />
+              <div className="relative w-16 h-16 rounded-3xl bg-gradient-to-br from-[#B8860B] to-[#D4AF37] p-[2px]">
+                <div className="w-full h-full rounded-3xl bg-[#0B0B0F] flex items-center justify-center">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_6970ae7e049edeef1920ae81/93c27515d_image.png" 
+                    alt="Le Café" 
+                    className="w-10 h-10 object-contain"
+                  />
+                </div>
+              </div>
+              <motion.div
+                className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <div className="w-2 h-2 bg-white rounded-full" />
+              </motion.div>
+            </motion.div>
+            <AnimatePresence>
+              {sidebarExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-1"
+                >
+                  <h1 className="font-display text-3xl font-bold bg-gradient-to-r from-[#D4AF37] via-[#F4E4C1] to-[#D4AF37] bg-clip-text text-transparent mb-1">
+                    Le Café
+                  </h1>
+                  <div className="flex items-center gap-2">
+                    <div className="h-[1px] w-8 bg-gradient-to-r from-[#B8860B] to-transparent" />
+                    <p className="text-[9px] text-gray-600 tracking-[0.25em] uppercase font-bold">Elite System</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Link>
+        </div>
+
+        {/* Menu */}
+        <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden px-4">
+          {menuSections.map((section, sectionIdx) => (
+            <motion.div 
+              key={section.title} 
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: sectionIdx * 0.1 }}
+            >
+              <AnimatePresence>
+                {sidebarExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="nav-group-header"
+                  >
+                    {section.title}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              <div className="space-y-2">
+                {section.items.map((item, idx) => (
+                  <Link
+                    key={item.page}
+                    to={createPageUrl(item.page)}
+                    className={`luxury-nav-item flex items-center gap-4 px-4 py-4 relative ${
+                      currentPageName === item.page ? 'active' : ''
+                    }`}
+                  >
+                    <motion.div 
+                      className="icon-container relative z-10"
+                      whileHover={{ scale: 1.15, rotate: -10 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <div className={`absolute inset-0 rounded-14 ${
+                        currentPageName === item.page 
+                          ? `bg-gradient-to-br ${item.gradient} opacity-100` 
+                          : 'bg-white/5 opacity-100'
+                      }`} />
+                      <item.icon className={`w-5 h-5 relative z-10 ${
+                        currentPageName === item.page ? 'text-white' : 'text-gray-400'
+                      }`} />
+                      {currentPageName === item.page && (
+                        <motion.div
+                          className="absolute inset-0 rounded-14 bg-gradient-to-br opacity-50 blur-md"
+                          style={{ background: `linear-gradient(135deg, ${item.gradient.split(' ')[0].replace('from-', 'var(--tw-gradient-from)')})` }}
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                      )}
+                    </motion.div>
+                    <AnimatePresence>
+                      {sidebarExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="flex-1 relative z-10"
+                        >
+                          <span className={`font-semibold text-[15px] ${
+                            currentPageName === item.page ? 'text-white' : 'text-gray-400'
+                          }`}>
+                            {item.name}
+                          </span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    {sidebarExpanded && currentPageName === item.page && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-2 h-2 rounded-full bg-gradient-to-br from-[#B8860B] to-[#D4AF37] relative z-10"
+                      />
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </nav>
+
+        {/* User */}
+        {user && (
+          <div className="p-4 m-4 mb-6 border-t border-white/5 pt-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-white/8 hover:to-white/[0.03] transition-all relative overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#B8860B]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[#B8860B] to-[#D4AF37] p-[2px]">
+                    <div className="w-full h-full rounded-xl bg-[#0B0B0F] flex items-center justify-center text-[#D4AF37] font-bold text-lg">
+                      {user.full_name?.charAt(0) || 'U'}
+                    </div>
+                  </div>
+                  <AnimatePresence>
+                    {sidebarExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex-1 text-left min-w-0 relative z-10"
+                      >
+                        <p className="text-sm font-bold text-white truncate">{user.full_name || 'Usuário'}</p>
+                        <p className="text-xs text-gray-600 truncate font-medium">{user.email}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {sidebarExpanded && (
+                    <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0 relative z-10" />
+                  )}
+                </motion.button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-[#0B0B0F] border-white/10 backdrop-blur-xl">
+                <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400 focus:bg-red-500/10">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+        
+        {/* Toggle Button */}
+        <motion.button
+          onClick={() => setSidebarExpanded(!sidebarExpanded)}
+          className="absolute -right-4 top-24 w-8 h-8 rounded-full bg-gradient-to-br from-[#B8860B] to-[#D4AF37] flex items-center justify-center shadow-2xl hover:shadow-[#B8860B]/50 transition-shadow z-50 group"
+          whileHover={{ scale: 1.2, rotate: 180 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#B8860B] to-[#D4AF37] blur-md opacity-50 group-hover:opacity-100 transition-opacity" />
+          <ChevronDown className={`w-4 h-4 text-black relative z-10 transition-transform ${sidebarExpanded ? 'rotate-90' : '-rotate-90'}`} />
+        </motion.button>
+      </motion.aside>
+
+      {/* Top Bar Desktop */}
+      <motion.header 
+        initial={false}
+        animate={{ marginLeft: sidebarExpanded ? 320 : 90 }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        className="hidden lg:flex fixed top-0 right-0 h-24 luxury-topbar items-center justify-between px-10 z-40"
+      >
+        <div className="flex items-center gap-8">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h2 className="text-3xl font-display font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-1">
+              {allMenuItems.find(item => item.page === currentPageName)?.name || 'Dashboard'}
+            </h2>
+            <div className="flex items-center gap-3 text-xs text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="font-medium">Online</span>
+              </div>
+              <span>•</span>
+              <span className="font-medium">
+                {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+          </motion.div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="search-wrapper">
+            <motion.div
+              initial={false}
+              animate={{ width: searchOpen ? 350 : 50 }}
+              transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+              className="relative"
+            >
+              <Input
+                type="text"
+                placeholder="Buscar em todo o sistema..."
+                onFocus={() => setSearchOpen(true)}
+                onBlur={() => setSearchOpen(false)}
+                className="h-12 bg-white/5 border-white/10 text-white placeholder:text-gray-600 rounded-2xl pr-12 pl-12 font-medium"
+              />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              {searchOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-600 tracking-wider"
+                >
+                  ESC
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="relative w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors group"
+          >
+            <Bell className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+            <motion.span 
+              className="absolute top-2 right-2 w-2.5 h-2.5 bg-gradient-to-br from-red-400 to-red-600 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
+          </motion.button>
+        </div>
+      </motion.header>
+
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 topbar-glass flex items-center justify-between px-4 z-50">
+        <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#B8860B]/20 to-[#D4AF37]/20 flex items-center justify-center">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_6970ae7e049edeef1920ae81/93c27515d_image.png" 
+              alt="Le Café" 
+              className="w-6 h-6 object-contain"
+            />
+          </div>
+          <span className="font-display text-lg bg-gradient-to-r from-[#D2B48C] to-[#D4AF37] bg-clip-text text-transparent">Le Café</span>
+        </Link>
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setSidebarOpen(true)}
+          className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"
+        >
+          <Menu className="w-5 h-5 text-white" />
+        </motion.button>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <div className="lg:hidden fixed inset-0 z-50">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside 
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="absolute left-0 top-0 h-full w-80 sidebar-blur flex flex-col"
+            >
+              <div className="p-6 flex items-center justify-between border-b border-white/5">
+                <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#B8860B]/20 to-[#D4AF37]/20 flex items-center justify-center">
+                    <img 
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_6970ae7e049edeef1920ae81/93c27515d_image.png" 
+                      alt="Le Café" 
+                      className="w-8 h-8 object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h1 className="font-display text-xl bg-gradient-to-r from-[#D2B48C] to-[#D4AF37] bg-clip-text text-transparent">Le Café</h1>
+                    <p className="text-[10px] text-gray-500 tracking-widest uppercase">Elite System</p>
+                  </div>
+                </Link>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setSidebarOpen(false)}
+                  className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </motion.button>
+              </div>
+              
+              <nav className="flex-1 py-6 overflow-y-auto">
+                {menuSections.map((section) => (
+                  <div key={section.title} className="mb-6">
+                    <p className="px-6 mb-3 text-[10px] font-semibold text-gray-600 tracking-wider uppercase">{section.title}</p>
+                    <div className="space-y-1 px-3">
+                      {section.items.map((item) => (
+                        <Link
+                          key={item.page}
+                          to={createPageUrl(item.page)}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm ${
+                            currentPageName === item.page 
+                              ? 'active text-white' 
+                              : 'text-gray-400'
+                          }`}
+                        >
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            currentPageName === item.page 
+                              ? `bg-gradient-to-br ${item.gradient}` 
+                              : 'bg-white/5'
+                          }`}>
+                            <item.icon className={`w-5 h-5 ${currentPageName === item.page ? 'text-white' : ''}`} />
+                          </div>
+                          <span className="font-medium">{item.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+            </motion.aside>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
+      <motion.main 
+        initial={false}
+        animate={{ 
+          marginLeft: sidebarExpanded ? 320 : 90,
+          paddingTop: 96
+        }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        className="hidden lg:block min-h-screen relative"
+      >
+        <div className="min-h-screen relative z-10">
+          {children}
+        </div>
+      </motion.main>
+
+      {/* Main Content Mobile */}
+      <main className="lg:hidden min-h-screen pt-16">
+        {children}
+      </main>
+    </div>
+  );
+}
